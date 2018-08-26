@@ -1,0 +1,323 @@
+#####################################################
+###  MySQL中的数据类型
+
+1.数值类型
+
+	1）整数类型
+		TINYINT,SMALLINT,MEDIUMINT,INT,BIGINT
+		
+		整数类型的特殊属性介绍
+			MySQL支持在类型后面的小括号内指定显示宽度，例如int(5),配合zerofill使用，当宽度小于5时会在前面填充宽度
+			所有整数类型都有一个可选属性unsigned，如果一个字段指定为zerofill时，默认为unsigned
+			整数还有一个属性为auto_increment，这是一个自增数，应该定义为not null，并定义为主键primary key或者是unique
+			
+	2）浮点类型
+		FLOAT,DOUBLE
+		
+		浮点数特殊属性介绍
+			浮点数可以在类型后面加(M,D)表示宽度，M为总显示的宽度，D为小数点后面的宽度
+			
+	3）定点数型
+		DEC,DECIMAL
+		
+		定点数类型特殊属性介绍
+			定点数在数据库中实际上是按照字符类型存储的
+			定点数也可以指定宽度，若不指定，系统默认整数位是10，小数位是0，即是(10,0)
+			
+	4）位类型
+		BIT
+		
+		位类型特殊属性介绍
+			位类型多用于存储多位二进制数据，BIT(M),M取值范围为1~64位
+			直接select位字段看不到结果，可以配合bin()、hex()函数查询数值
+			
+	定点数与浮点数在应用中的选择
+		浮点数存在误差问题，对精度要求较高的要使用定点数来存储
+			
+2.日期时间类型
+
+	DATE：		4字节，取值范围为：	1000-01-01 ~ 9999-12-31
+	DATETIME：	8字节，取值范围为：	1000-01-01 00:00:00 ~ 9999-12-31 23:59:59
+	TIMESTAMP:	4字节，取值范围为：	19700101080001 ~ 2038年某个时刻
+	TIME:		3字节，取值范围为： -838:59:59 ~ 838:59:59
+	YEAR:		1字节，取值范围为：	1901 ~ 2155
+	
+	日期时间类型的属性介绍：
+		通常用DATE来表示年月日，通常用DATETIME来表示年月日时分秒，通常用TIME来表示时分秒
+		
+		如果经常要插入或者更新日期为当前系统时间，通常使用TIMESTAMP，默认值为CURRENT_TIMESTAMP,
+		即是空值按照当前系统时间处理，并受时区影响，返回结果格式是YYYY-MM-DD HH:MM:SS
+		
+3.字符串类型
+
+	1）较短字符串
+		CHAR(M),VARCHAR(M)
+	
+	2）较大二进制文本，照片....
+		TINYBLOB,BLOB,MEDIUMBLOB,LONGBLOB
+		
+	3）较大文本
+		TINYTEXT,TEXT,MEDIUMTEXT,LONGTEXT
+	
+	4）二进制字符串
+		VARBINARY(M),BINARY(M)
+	
+	字符串类型属性介绍：
+		CHAR存储定长字符串，检索时候删除了尾部空格
+		VARCHAR存储可变字符串，检索的时候保留了尾部空格
+		
+	字符串类型选择：
+	
+		CHAR和VARCHAR
+		CHAR:长度固定，处理数据快，但是程序员要对末尾结束符进行处理
+		VARCHAR：可变长度，保留末尾结束符
+		
+		TEXT与BOLB
+		TEXT：较大的文本类型，建议定期使用OPTIMIZE TABLE 表名；清理空间垃圾，使用索引加快查询速度
+		BOLB：较大的二进制数据，如照片，程序可执行文件等
+		
+4.ENUM类型
+	
+	ENUM的取值范围要在创建表时通过枚举方式显示指定
+	
+	create table em (gender enum('m','F'));
+	
+	枚举类型属性介绍：
+		枚举类型在插入时候不区分大小写
+		插入的值不在枚举范围时，默认为第一个值
+		只允许从集合中选取单个值，不能选取多个值
+		
+5.SET类型
+
+	SET类型与枚举类型相似，里面可以包含0~64个成员
+	
+	create table se (col set ('a','b','c','d'));
+	
+	SET类型属性介绍：
+		SET类型可以一次选取多个值
+		在允许值范围之外的值不允许插入到SET类型的字段中
+		对重复的成员集合只取一次
+	
+
+#####################################################
+###  MySQL中的运算符
+
+1.算术运算符
+	加法		+
+	减法		-
+	乘法		*
+	除法		/,DIV
+	求余		%,MOD
+	
+2.比较运算符
+	等于		=
+	不等于		<>,!=
+	安全等于	<=>  （可用于NULL值比较）
+	小于		<
+	小于等于	<=
+	大于		>
+	大于等于	>=
+	存在于范围	BETWEEN   			a between min and max
+	存在于集合	IN        			a in (value1,value2)
+	为NULL		IS NULL	  			a is NULL
+	不为NULL	IS NOT NULL  		a is not NULL
+	通配符匹配	LIKE				a like %abc
+	正则匹配	REGXP,RLIKE			a regexp a_part
+	
+3.逻辑运算符
+	逻辑非		NOT,!
+	逻辑与		AND,&&
+	逻辑或		OR,||
+	逻辑异或	XOR
+	
+4.位运算符
+	位与		&
+	位或		|
+	位异或		^
+	位取反		~
+	位右移		>>
+	位左移		<<
+	
+	
+#####################################################
+###  SQL 语句
+
+1.SQL分类
+	
+	DDL：数据定义语言，包括create,drop,alter
+	DML：数据操纵语句，包括insert,delete,update,select
+	DML：数据控制语句，包括grant,revoke
+	
+2.基本shell环境下SQL命令行语句
+			
+	显示数据库
+		show databases;
+		
+	选择要操作的数据库
+		use databases;
+		
+	显示数据库中的表
+		show tables;
+				
+	查看表定义：
+		DESC 表名;
+		
+	查看表创建时候的SQL语句：
+		SHOW CREATE TABLE 表名\G;
+
+3.CREATE 语句			
+	创建表：
+		CREATE TABLE 表名(
+			字段名1	字段数据类型 约束条件,
+			字段名2	字段数据类型 约束条件,
+			字段名3	字段数据类型 约束条件,
+			…………………………
+			字段名n	字段数据类型 约束条件);
+			
+	创建数据库：
+	CREATE DATABASE 数据库名;
+
+4.DROP语句			
+	删除表
+		DROP TABLE 表名;
+
+	删除数据库
+		delete database 数据库名;
+
+5.ALTER语句			
+	修改字段类型
+		ALTER TABLE 表名 MODIFY 字段名 数据类型 [AFTER|FIRST];
+		
+	增加字段
+		ALTER TABLE 表名 ADD COLUMN 字段名 数据类型 [AFTER|FIRST];
+		
+	删除字段
+		ALTER TABLE 表名 DROP COLUMN 字段名;
+		
+	修改已经存在的字段名
+		ALTER TABLE 表名 CHANGE 旧名 新名 数据类型 [AFTER|FIRST];
+		
+	修改字段排列顺序
+		ALTER TABLE 表名 ADD\CHANGE\MODIFY 字段名 数据类型 FIRST\AFTER 已存在的字段名;
+		
+	更改表名
+		ALTER TABLE 表名 RENAME 新表名;
+
+6.INSERT语句				
+	一次插入一条记录
+		INSERT INTO 表名 (col1,col2,col3,...) VALUES (v1,v2,v3,...);
+		
+	一次插入多条记录
+		INSERT INTO 表名 (col1,col2,col3,...) 
+		VALUES 
+		(v1,v2,v3,...),
+		(v1,v2,v3,...),
+		(v1,v2,v3,...),
+		......
+		(v1,v2,v3,...);
+
+7.UPDATE语句				
+	一次更新一个表中的记录
+		UPDATE 表名 SET col1 = v1,col2=v2,... [WHERE 条件语句];
+		
+	一次更新多个表中的记录
+		UPDATE 表名1，表名2,... SET 表名1.col1=v1,表名2.col2=v2 [WHERE 条件语句];
+		
+8.DELETE语句
+	一次删除一个表中的数据
+		DELETE FROM 表名 [WHERE 条件语句];
+		
+	一次删除多个表中的数据
+		DELETE 表名1，表名2,... FROM  表名1，表名2,... [WHERE 条件语句];
+	
+9.SELECT语句	
+	一般查询语句
+		SELECT * FROM 表名 [WHERE 条件语句];
+		
+	查询不重复记录
+		SELECT * FROM 表名 [WHERE 条件语句];
+		
+	排序查询
+		SELECT * FROM 表名 ORDER BY 字段名;
+		
+	限制显示查询
+		显示指定行数的结果
+			SELECT * FROM 表名 LIMIT 数字;
+		显示从某行开始的几行
+			SELECT * FROM 表名 LIMIT [OFFSET_START,NUMBER];
+			
+	聚合查询
+		SELECT * FROM 表名 [WHERE 条件语句] GROUP BY 字段名 [HAVING 条件];
+		
+	内连接：与外连接比，仅显示出两张表中相互匹配的记录
+		SELECT 字段1，字段2,... FROM 表名1，表名2 WHERE 表名1.字段1 = 表名2.字段1;
+		
+	外连接：与内连接比，会显示出两张表中不匹配的记录
+		左连接：包含所有左边表中的记录甚至是右边表中没有和它匹配的记录
+			SELECT 字段1，字段2,... FROM 表名1 LEFT JOIN 表名2 ON 表名1.字段1 = 表名2.字段1;
+			
+		右连接：包含所有右边表中的记录甚至是左边表中没有和它匹配的记录
+			SELECT 字段1，字段2,... FROM 表名1 RIGHT JOIN 表名2 ON 表名1.字段1 = 表名2.字段1;
+	子查询：进行一个查询的时候，需要的条件是另一个查询语句的结果
+		SELECT * FROM 表名1 WHERE 字段名 IN\NOT IN\=\!=\EXISTS\NOT EXISTS (SELECT 字段名 FROM 表名2);
+		
+	联合查询:UNION会把结果去掉重复的记录，而UNION ALL不会
+		SELECT * FROM 表名1 
+		UNION\UNION ALL 
+		SELECT * FROM 表名2
+		....
+		UNION\UNION ALL
+		SELECT * FROM 表名n;
+				
+10.索引INDEX语句
+	创建索引
+		CREATE INDEX 索引名 ON 表名 (字段名(索引大小));
+		
+	删除索引
+		DROP INDEX 索引名 ON 表名;
+		
+11.存储过程：没有返回值，参数可以是IN,OUT,INOUT类型
+	创建存储过程
+		CREATE PROCEDURE 存储过程名 (参数列表)
+		可选参数：
+			[LANGUAGE SQL]
+			|[NOT] DETERMINISTIC
+			|{CONTAINS SQL|NO SQL|READS SQL DATA|MODIFIES SQL DATA}
+			|SQL SECURITY {DEFINER|INVOKER}
+			|COMMENT 'string'
+		BEGIN
+			SQL代码体
+		END
+		
+	修改存储过程
+		ALTER PROCEDURE 存储过程名 要修改的内容;
+		
+	调用存储过程
+		CALL 存储过程名 (参数列表);
+		
+	删除存储过程
+		DROP PROCEDURE 存储过程名;
+		
+	查看存储过程状态
+		SHOW PROCEDURE STATUS LIKE 存储过程名;
+		
+	查看存储过程定义
+		SHOW CRATE PROCEDURE 存储过程名;
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
